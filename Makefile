@@ -54,7 +54,7 @@ ${LIBDIR}/libspatialite.a: ${LIBDIR}/libsqlite3.a ${CURDIR}/spatialite
 	CC=${CC} \
 	CFLAGS="${CFLAGS} -Wno-error=implicit-function-declaration" \
 	CXXFLAGS="${CXXFLAGS} -Wno-error=implicit-function-declaration" \
-	LDFLAGS="${LDFLAGS} -liconv -lc++" ./configure --host=${HOST} --enable-freexl=no --enable-libxml2=no --enable-geos=no --enable-proj=no --prefix=${PREFIX} --disable-shared && make clean install-strip
+	LDFLAGS="${LDFLAGS} -lc++" ./configure --host=${HOST} --enable-freexl=no --enable-libxml2=no --enable-geos=no --enable-proj=no --enable-iconv=no --prefix=${PREFIX} --disable-shared && make clean install-strip
 
 ${CURDIR}/spatialite:
 	curl http://www.gaia-gis.it/gaia-sins/libspatialite-sources/libspatialite-4.3.0a.tar.gz > spatialite.tar.gz
