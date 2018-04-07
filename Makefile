@@ -11,7 +11,6 @@ lib/libspatialite.a: build_arches
 	mkdir -p include
 
 	# Copy includes
-	cp -R build/armv7/include/geos include
 	cp -R build/armv7/include/spatialite include
 	cp -R build/armv7/include/*.h include
 
@@ -49,13 +48,13 @@ LDFLAGS = -stdlib=libc++ -isysroot ${IOS_SDK} -L${LIBDIR} -L${IOS_SDK}/usr/lib -
 
 arch: ${LIBDIR}/libspatialite.a
 
-${LIBDIR}/libspatialite.a: ${LIBDIR}/libproj.a ${LIBDIR}/libgeos.a ${LIBDIR}/libsqlite3.a ${CURDIR}/spatialite
+${LIBDIR}/libspatialite.a: ${LIBDIR}/libproj.a ${LIBDIR}/libsqlite3.a ${CURDIR}/spatialite
 	cd spatialite && env \
 	CXX=${CXX} \
 	CC=${CC} \
 	CFLAGS="${CFLAGS} -Wno-error=implicit-function-declaration" \
 	CXXFLAGS="${CXXFLAGS} -Wno-error=implicit-function-declaration" \
-	LDFLAGS="${LDFLAGS} -liconv -lgeos -lgeos_c -lc++" ./configure --host=${HOST} --enable-freexl=no --enable-libxml2=no --prefix=${PREFIX} --with-geosconfig=${BINDIR}/geos-config --disable-shared && make clean install-strip
+	LDFLAGS="${LDFLAGS} -liconv -lc++" ./configure --host=${HOST} --enable-freexl=no --enable-libxml2=no --enable-geos=no --prefix=${PREFIX} --disable-shared && make clean install-strip
 
 ${CURDIR}/spatialite:
 	curl http://www.gaia-gis.it/gaia-sins/libspatialite-sources/libspatialite-4.3.0a.tar.gz > spatialite.tar.gz
@@ -78,20 +77,6 @@ ${CURDIR}/proj:
 	rm proj.tar.gz
 	mv proj-4.9.3 proj
 
-${LIBDIR}/libgeos.a: ${CURDIR}/geos
-	cd geos && env \
-	CXX=${CXX} \
-	CC=${CC} \
-	CFLAGS="${CFLAGS}" \
-	CXXFLAGS="${CXXFLAGS}" \
-	LDFLAGS="${LDFLAGS}" ./configure --host=${HOST} --prefix=${PREFIX} --disable-shared && make clean install
-
-${CURDIR}/geos:
-	curl http://download.osgeo.org/geos/geos-3.6.1.tar.bz2 > geos.tar.bz2
-	tar -xzf geos.tar.bz2
-	rm geos.tar.bz2
-	mv geos-3.6.1 geos
-
 ${LIBDIR}/libsqlite3.a: ${CURDIR}/sqlite3
 	cd sqlite3 && env LIBTOOL=${XCODE_DEVELOPER}/Toolchains/XcodeDefault.xctoolchain/usr/bin/libtool \
 	CXX=${CXX} \
@@ -109,4 +94,4 @@ ${CURDIR}/sqlite3:
 	touch sqlite3
 
 clean:
-	rm -rf build geos proj spatialite sqlite3 include lib
+	rm -rf build proj spatialite sqlite3 include lib
