@@ -48,13 +48,13 @@ LDFLAGS = -stdlib=libc++ -isysroot ${IOS_SDK} -L${LIBDIR} -L${IOS_SDK}/usr/lib -
 
 arch: ${LIBDIR}/libspatialite.a
 
-${LIBDIR}/libspatialite.a: ${LIBDIR}/libproj.a ${LIBDIR}/libsqlite3.a ${CURDIR}/spatialite
+${LIBDIR}/libspatialite.a: ${LIBDIR}/libsqlite3.a ${CURDIR}/spatialite
 	cd spatialite && env \
 	CXX=${CXX} \
 	CC=${CC} \
 	CFLAGS="${CFLAGS} -Wno-error=implicit-function-declaration" \
 	CXXFLAGS="${CXXFLAGS} -Wno-error=implicit-function-declaration" \
-	LDFLAGS="${LDFLAGS} -liconv -lc++" ./configure --host=${HOST} --enable-freexl=no --enable-libxml2=no --enable-geos=no --prefix=${PREFIX} --disable-shared && make clean install-strip
+	LDFLAGS="${LDFLAGS} -liconv -lc++" ./configure --host=${HOST} --enable-freexl=no --enable-libxml2=no --enable-geos=no --enable-proj=no --prefix=${PREFIX} --disable-shared && make clean install-strip
 
 ${CURDIR}/spatialite:
 	curl http://www.gaia-gis.it/gaia-sins/libspatialite-sources/libspatialite-4.3.0a.tar.gz > spatialite.tar.gz
@@ -62,20 +62,6 @@ ${CURDIR}/spatialite:
 	rm spatialite.tar.gz
 	mv libspatialite-4.3.0a spatialite
 	patch -Np0 < spatialite.patch
-
-${LIBDIR}/libproj.a: ${CURDIR}/proj
-	cd proj && env \
-	CXX=${CXX} \
-	CC=${CC} \
-	CFLAGS="${CFLAGS}" \
-	CXXFLAGS="${CXXFLAGS}" \
-	LDFLAGS="${LDFLAGS}" ./configure --host=${HOST} --prefix=${PREFIX} --disable-shared && make clean install
-
-${CURDIR}/proj:
-	curl -L http://download.osgeo.org/proj/proj-4.9.3.tar.gz > proj.tar.gz
-	tar -xzf proj.tar.gz
-	rm proj.tar.gz
-	mv proj-4.9.3 proj
 
 ${LIBDIR}/libsqlite3.a: ${CURDIR}/sqlite3
 	cd sqlite3 && env LIBTOOL=${XCODE_DEVELOPER}/Toolchains/XcodeDefault.xctoolchain/usr/bin/libtool \
@@ -94,4 +80,4 @@ ${CURDIR}/sqlite3:
 	touch sqlite3
 
 clean:
-	rm -rf build proj spatialite sqlite3 include lib
+	rm -rf build spatialite sqlite3 include lib
