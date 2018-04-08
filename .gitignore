@@ -16,6 +16,6 @@
 *.out
 *.app
 
-build
-spatialite
-libspatialite.fossil
+/build
+/spatialite
+/include
