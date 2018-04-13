@@ -54,7 +54,7 @@ ${LIBDIR}/libspatialite.a: ${CURDIR}/spatialite
 	CC=${CC} \
 	CFLAGS="${CFLAGS} -Wno-error=implicit-function-declaration" \
 	CXXFLAGS="${CXXFLAGS} -Wno-error=implicit-function-declaration" \
-	LDFLAGS="${LDFLAGS} -lc++" ./configure --host=${HOST} --enable-freexl=no --enable-libxml2=no --enable-geos=no --enable-proj=no --enable-iconv=no --enable-examples=no --prefix=${PREFIX} --disable-shared && make clean install-strip
+	LDFLAGS="${LDFLAGS} -lc++" ./configure --host=${HOST} --enable-freexl=no --enable-libxml2=no --enable-geos=no --enable-proj=no --enable-iconv=no --enable-examples=no --prefix=${PREFIX} && make clean install-strip
 
 clean:
 	rm -rf build spatialite include lib
