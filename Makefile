@@ -11,11 +11,12 @@ lib/libspatialite.a: build_arches
 	mkdir -p include
 
 	# Copy includes
-	cp -R build/armv7/include/spatialite include
-	cp -R build/armv7/include/*.h include
+	cp -R build/x86_64/include/spatialite include
+	cp -R build/x86_64/include/*.h include
+	mv include/spatialite.h include/spatialite_public.h
 
 	# Make fat libraries for all architectures
-	for file in build/armv7/lib/*.a; \
+	for file in build/x86_64/lib/*.a; \
 		do name=`basename $$file .a`; \
 		lipo -create \
 			-arch armv7 build/armv7/lib/$$name.a \
@@ -48,13 +49,29 @@ LDFLAGS = -stdlib=libc++ -isysroot ${IOS_SDK} -L${LIBDIR} -L${IOS_SDK}/usr/lib -
 
 arch: ${LIBDIR}/libspatialite.a
 
-${LIBDIR}/libspatialite.a: ${CURDIR}/spatialite
+${LIBDIR}/libspatialite.a: ${LIBDIR}/libsqlite3.a ${CURDIR}/spatialite
 	cd spatialite && env \
 	CXX=${CXX} \
 	CC=${CC} \
 	CFLAGS="${CFLAGS} -Wno-error=implicit-function-declaration" \
 	CXXFLAGS="${CXXFLAGS} -Wno-error=implicit-function-declaration" \
-	LDFLAGS="${LDFLAGS} -lc++" ./configure --host=${HOST} --enable-freexl=no --enable-libxml2=no --enable-geos=no --enable-proj=no --enable-iconv=no --enable-examples=no --prefix=${PREFIX} && make clean install-strip
+	LDFLAGS="${LDFLAGS} -lc++" ./configure --host=${HOST} --enable-freexl=no --enable-libxml2=no --enable-geos=no --enable-proj=no --enable-iconv=no --enable-examples=no --prefix=${PREFIX} && make clean install
+
+${LIBDIR}/libsqlite3.a: ${CURDIR}/sqlite3
+	cd sqlite3 && env LIBTOOL=${XCODE_DEVELOPER}/Toolchains/XcodeDefault.xctoolchain/usr/bin/libtool \
+	CXX=${CXX} \
+	CC=${CC} \
+	CFLAGS="${CFLAGS} -DSQLITE_NOHAVE_SYSTEM -DSQLITE_THREADSAFE=1 -DSQLITE_ENABLE_RTREE=1" \
+	CXXFLAGS="${CXXFLAGS} -DSQLITE_THREADSAFE=1 -DSQLITE_ENABLE_RTREE=1" \
+	LDFLAGS="-Wl,-arch -Wl,${ARCH} -arch_only ${ARCH} ${LDFLAGS}" \
+	./configure --host=${HOST} --prefix=${PREFIX} --disable-shared --enable-static && make clean install
+
+${CURDIR}/sqlite3:
+	curl https://www.sqlite.org/2018/sqlite-autoconf-3230100.tar.gz > sqlite3.tar.gz
+	tar xzvf sqlite3.tar.gz
+	rm sqlite3.tar.gz
+	mv sqlite-autoconf-3230100 sqlite3
+	touch sqlite3
 
 clean:
-	rm -rf build spatialite include lib
+	rm -rf build spatialite sqlite3 include lib
